@@ -16,7 +16,19 @@
   }
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  padding-top: env(safe-area-inset-top); /* Add safe area inset padding */
+}
+
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -26,8 +38,24 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+#__next {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.custom-modal {
+  height: 80% !important;
+}
+
+/* Ensure Vimeo iframe respects rounded corners */
+.vp-video-wrapper, .vp-video iframe {
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
 }

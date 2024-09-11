@@ -1,0 +1,5 @@
+/* styles/custom.css */
+.custom-iframe {
+    border-radius: 0.5rem; /* This is the equivalent of rounded-lg in Tailwind */
+    overflow: hidden;
+  }
