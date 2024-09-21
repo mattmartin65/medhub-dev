@@ -48,7 +48,7 @@ export default function MyMeds() {
 
   return (
     <ClientLayout>
-      <div className="container mx-auto px-2 pb-4 pt-4">
+      <div className="container mx-auto px-1 pb-4 pt-4">
         <h1 className="text-2xl font-semibold mb-6 text-center text-slate-400"></h1>
         
         <section className="mb-6">
