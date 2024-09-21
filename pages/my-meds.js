@@ -48,9 +48,11 @@ export default function MyMeds() {
 
   return (
     <ClientLayout>
-      <div className="container mx-auto px-4 pb-4">
+      <div className="container mx-auto px-4 pb-4 pt-4">
+        <h1 className="text-2xl font-semibold mb-6 text-center text-slate-400"></h1>
+        
         <section className="mb-6">
-          <h2 className="text-3xl font-semibold mb-4 text-center text-slate-400 ">Next Prescription Due</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-center text-slate-700">Next Prescription Due</h2>
           <div className="bg-white p-4 pb-8 rounded-lg shadow-md mt-2">
             <div className="flex justify-between items-center text-xl text-slate-500">
               <span>Get ready</span>
@@ -61,9 +63,10 @@ export default function MyMeds() {
             </div>
           </div>
         </section>
+
         {medications.length > 0 ? (
           <div>
-            <h2 className="text-3xl font-semibold mt-8 mb-4 text-center text-slate-400 ">Medication</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4 text-center text-slate-600">Medication</h2>
             {medications.map((med) => (
               <Card
                 key={med.id}
@@ -79,7 +82,7 @@ export default function MyMeds() {
                 modalLinkCompany={med.modallinkcompany}
               />
             ))}
-            <h2 className="text-3xl font-semibold mt-8 mb-4 text-center text-slate-400 ">Programs</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4 text-center text-slate-600">Programs</h2>
             {programs.length > 0 ? (
               programs.map((prog) => (
                 <Card

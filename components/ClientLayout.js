@@ -2,10 +2,10 @@
 "use client";
 import { useEffect, useState } from 'react';
 import supabase from '../lib/supabaseClient';
-import NavBar from "./NavBar";
 import Header from "./Header";
+import NavBar from "./NavBar";  // Import the NavBar component instead of BottomNav
 
-export default function ClientLayout({ children }) {
+const ClientLayout = ({ children }) => {
   const [clinicInfo, setClinicInfo] = useState({
     clinicName: '',
     address: '',
@@ -23,7 +23,7 @@ export default function ClientLayout({ children }) {
       if (error) {
         console.error('Error fetching clinic info:', error);
       } else if (data) {
-        console.log('Fetched clinic info:', data); // Debugging
+        console.log('Fetched clinic info:', data);
         setClinicInfo({
           clinicName: data.clinicName,
           address: data.address,
@@ -36,18 +36,22 @@ export default function ClientLayout({ children }) {
     fetchClinicInfo();
   }, []);
 
-  console.log("ClientLayout rendering with clinicInfo:", clinicInfo);
-
   return (
-    <div className="relative min-h-screen" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="flex flex-col min-h-screen">
       <Header
         clinicName={clinicInfo.clinicName}
         clinicAddress={clinicInfo.address}
         headerUrl={clinicInfo.headerUrl}
         icon={clinicInfo.icon}
       />
-      <div className="pt-48 pb-24">{children}</div>
-      <NavBar />
+      <main className="flex-grow pt-20"> {/* Increased padding-top */}
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 pt-10" style={{ maxWidth: '736px' }}> {/* Added pt-10 for extra top padding */}
+          {children}
+        </div>
+      </main>
+      <NavBar />  {/* Use the NavBar component here */}
     </div>
   );
-}
+};
+
+export default ClientLayout;

@@ -5,6 +5,7 @@ import Modal from './Modal';
 
 const ListCards = () => {
   const [cards, setCards] = useState([]);
+  const [specialistAppointment, setSpecialistAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -12,14 +13,18 @@ const ListCards = () => {
   useEffect(() => {
     const fetchCards = async () => {
       const { data, error } = await supabase
-        .from('task-list')
-        .select('task-name, task-image, frequency-days, task-description, additional-information, frequency, category');
+        .from('reminder-list')
+        .select('name, image, frequency-days, description, additional-information, frequency');
 
       if (error) {
         console.error('Error fetching data:', error);
       } else {
         console.log('Fetched data:', data);
-        setCards(data);
+        // Find the specialist appointment card
+        const specialistCard = data.find(card => card.name.toLowerCase().includes('specialist appointment'));
+        setSpecialistAppointment(specialistCard);
+        // Filter out the specialist appointment from the regular cards
+        setCards(data.filter(card => card !== specialistCard));
       }
       setLoading(false);
     };
@@ -45,19 +50,40 @@ const ListCards = () => {
 
   return (
     <div className="p-0 sm:p-4">
+      {specialistAppointment && (
+        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+          <div className="flex flex-col">
+            <div className="w-full h-56 overflow-hidden" onClick={() => openModal(specialistAppointment)}>
+              {specialistAppointment['image'] && (
+                <img 
+                  src={specialistAppointment['image']} 
+                  alt={specialistAppointment['name']} 
+                  className="w-full h-auto object-cover object-top"
+                />
+              )}
+            </div>
+            <div className="p-6 flex flex-col" onClick={() => openModal(specialistAppointment)}>
+              <h2 className="text-2xl text-gray-800 font-bold mb-3">{specialistAppointment['name']}</h2>
+              <p className="text-gray-600 mb-4">{specialistAppointment['description']}</p>
+              <p className="text-sm text-gray-500 mt-auto">Frequency Days: {specialistAppointment['frequency-days']}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {cards.length === 0 ? (
-        <div>No data available</div>
+        <div>No other reminders available</div>
       ) : (
         cards.map((card, index) => (
           <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden mb-4 flex">
             <div className="w-1/4" onClick={() => openModal(card)}>
-              {card['task-image'] && (
-                <img src={card['task-image']} alt={card['task-name']} className="h-full w-full object-cover rounded-l-lg" />
+              {card['image'] && (
+                <img src={card['image']} alt={card['name']} className="h-full w-full object-cover rounded-l-lg" />
               )}
             </div>
             <div className="flex-1 p-4 flex flex-col justify-between" onClick={() => openModal(card)}>
               <div>
-                <h2 className="text-xl text-gray-600 font-semibold mb-2">{card['task-name']}</h2>
+                <h2 className="text-xl text-gray-600 font-semibold mb-2">{card['name']}</h2>
               </div>
               <div className="flex items-center justify-between">
                 <div>
@@ -67,7 +93,7 @@ const ListCards = () => {
             </div>
             <div className="w-auto">
               <button
-                className="text-xl font-bold bg-primary text-gray-200 px-4 pb-2 rounded-r-lg h-full flex items-center justify-center"
+                className="text-xl font-bold bg-primary text-gray-200 px-6 pb-2 rounded-r-lg h-full flex items-center justify-center"
                 onClick={(e) => e.stopPropagation()} // Prevent modal from opening when clicking the Done button
               >
                 Done
@@ -76,17 +102,17 @@ const ListCards = () => {
           </div>
         ))
       )}
+
       {selectedCard && (
         <Modal
           isOpen={isModalOpen}
           onClose={closeModal}
-          modalTitle={selectedCard['task-name']}
-          modalDescription={selectedCard['task-description']}
+          modalTitle={selectedCard['name']}
+          modalDescription={selectedCard['description']}
           modalAdditionalInfo={selectedCard['additional-information']}
           modalFrequency={selectedCard['frequency']}
-          modalCategory={selectedCard['category']}
-          modalImage={selectedCard['task-image']}
-          // Add other modal properties as needed
+          modalImage={selectedCard['image']}
+          // Remove modalCategory as it's not in the schema
         />
       )}
     </div>
