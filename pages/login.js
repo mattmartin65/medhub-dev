@@ -1,9 +1,11 @@
+// pages/login.js
 import { useState, useEffect } from "react";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 
 export default function Login() {
   const supabase = useSupabaseClient();
+  const session = useSession();
   const router = useRouter();
   const { newUser, clinicid, specialtyid } = router.query;
 
@@ -20,27 +22,134 @@ export default function Login() {
   const [conditions, setConditions] = useState([]);
   const [medications, setMedications] = useState([]);
 
+  // Redirect authenticated users to /medications
+  useEffect(() => {
+    if (session) {
+      router.push("/medications");
+    }
+  }, [session, router]);
+
+  // Determine if the user is new based on query parameters
   useEffect(() => {
     if (newUser === "true" && clinicid && specialtyid) {
       setIsNewUser(true);
+    } else {
+      setIsNewUser(false);
     }
   }, [newUser, clinicid, specialtyid]);
 
+  // Fetch conditions and medications based on specialtyid
+  useEffect(() => {
+    const fetchConditionsAndMedications = async () => {
+      if (specialtyid) {
+        // Fetch conditions filtered by specialtyId
+        const { data: conditionsData, error: conditionsError } = await supabase
+          .from("conditions")
+          .select("*")
+          .eq("specialtyId", specialtyid);
+
+        if (conditionsError) {
+          console.error("Error fetching conditions:", conditionsError);
+          setMessage({ type: "error", text: "Failed to load conditions." });
+        } else {
+          setConditions(conditionsData);
+        }
+
+        // Fetch all medications (to be filtered based on condition selection)
+        const { data: medicationsData, error: medicationsError } = await supabase
+          .from("medications")
+          .select("*");
+
+        if (medicationsError) {
+          console.error("Error fetching medications:", medicationsError);
+          setMessage({ type: "error", text: "Failed to load medications." });
+        } else {
+          setMedications(medicationsData);
+        }
+      }
+    };
+
+    fetchConditionsAndMedications();
+  }, [specialtyid, supabase]);
+
+  // Format phone number to ensure correct format
+  const formatPhoneNumber = (phone) => {
+    // Remove any spaces or non-digit characters
+    phone = phone.replace(/\D/g, "");
+
+    // If the number starts with '0', remove it and add country code '+61'
+    if (phone.startsWith("0")) {
+      phone = phone.substring(1);
+      phone = "+61" + phone;
+    }
+
+    // If the number does not start with '+', add default country code '+61'
+    if (!phone.startsWith("+")) {
+      phone = "+61" + phone;
+    }
+
+    return phone;
+  };
+
+  // Validate form inputs
+  const validateForm = () => {
+    if (authMethod === "email") {
+      const emailRegex = /\S+@\S+\.\S+/;
+      if (!emailRegex.test(email)) {
+        setMessage({ type: "error", text: "Please enter a valid email address." });
+        return false;
+      }
+    } else {
+      const phoneRegex = /^\+61\d{9}$/; // Australian phone number format
+      if (!phoneRegex.test(formatPhoneNumber(phone))) {
+        setMessage({ type: "error", text: "Please enter a valid Australian phone number." });
+        return false;
+      }
+    }
+
+    if (!condition) {
+      setMessage({ type: "error", text: "Please select a condition." });
+      return false;
+    }
+
+    if (!medication) {
+      setMessage({ type: "error", text: "Please select a medication." });
+      return false;
+    }
+
+    if (!nextAppointment) {
+      setMessage({ type: "error", text: "Please select the date of your next appointment." });
+      return false;
+    }
+
+    // Ensure at least one contact method is provided
+    if (!email && !phone) {
+      setMessage({ type: "error", text: "Please provide either an email or a mobile number." });
+      return false;
+    }
+
+    return true;
+  };
+
+  // Handle login for existing users
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     setLoading(true);
     setMessage(null);
-  
+
     try {
       let response;
       const formattedPhone = formatPhoneNumber(phone);
-  
+
       if (authMethod === "email") {
         response = await supabase.auth.signInWithOtp({ email });
       } else {
         response = await supabase.auth.signInWithOtp({ phone: formattedPhone });
       }
-  
+
       if (response.error) {
         setMessage({ type: "error", text: response.error.message });
       } else {
@@ -56,64 +165,22 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
-  };  
-
-  // Fetch conditions and medications from Supabase
-  useEffect(() => {
-    const fetchConditionsAndMedications = async () => {
-      const { data: conditionsData, error: conditionsError } = await supabase
-        .from("conditions")
-        .select("*");
-      if (conditionsError) {
-        console.error("Error fetching conditions:", conditionsError);
-      } else {
-        setConditions(conditionsData);
-      }
-
-      const { data: medicationsData, error: medicationsError } = await supabase
-        .from("medications")
-        .select("*");
-      if (medicationsError) {
-        console.error("Error fetching medications:", medicationsError);
-      } else {
-        setMedications(medicationsData);
-      }
-    };
-
-    fetchConditionsAndMedications();
-  }, [supabase]);
-
-  // Format phone number to ensure correct format
-  const formatPhoneNumber = (phone) => {
-    // Remove any spaces or non-digit characters
-    phone = phone.replace(/\D/g, "");
-  
-    // If the number starts with '0', remove it and add country code '+61'
-    if (phone.startsWith("0")) {
-      phone = phone.substring(1);
-      phone = "+61" + phone;
-    }
-  
-    // If the number already starts with '+', return as is
-    if (!phone.startsWith("+")) {
-      phone = "+61" + phone; // Default to Australian country code
-    }
-  
-    return phone;
   };
 
-  // Handle user registration (for new users)
+  // Handle onboarding for new users
   const handleOnboarding = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     setLoading(true);
     setMessage(null);
 
     try {
       // Create a new user in Supabase Auth
       const { data: user, error: userError } = await supabase.auth.signUp({
-        email: authMethod === "email" ? email : null,
-        phone: authMethod === "phone" ? formatPhoneNumber(phone) : null,
-        password: Math.random().toString(36).slice(-8), // Temporary password
+        email: email || undefined,
+        phone: phone ? formatPhoneNumber(phone) : undefined,
       });
 
       if (userError) {
@@ -134,8 +201,8 @@ export default function Login() {
             medicationid: medication,
             formid: formType === "initial" ? "INITIAL_FORM_ID" : "CONTINUING_FORM_ID",
             dateform: nextAppointment,
-            mobile: authMethod === "phone" ? phone : null,
-            email: authMethod === "email" ? email : null,
+            mobile: phone ? phone : null, // Set to null if email is chosen
+            email: email ? email : null, // Set to null if phone is chosen
           },
         ]);
 
@@ -155,12 +222,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-cyan-500 via-sky-300 to-sky-800 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-t from-cyan-600 via-sky-300 to-primary px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         {isNewUser ? (
           <>
-            <h2 className="text-2xl font-bold mb-6 text-center">Welcome to Medhub</h2>
-            <h2 className="text-lg mb-6 text-center">Please complete the details below</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Welcome to MedHub</h2>
+            <h3 className="text-lg mb-6 text-center">Please complete the details below</h3>
+
             {/* Feedback Message */}
             {message && (
               <div
@@ -203,11 +271,11 @@ export default function Login() {
                   <input
                     type="tel"
                     id="phone"
-                    required
+                    required={authMethod === "phone"}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
-                    placeholder="0400 123 456"
+                    placeholder="0412 345 678"
                   />
                 </div>
               ) : (
@@ -218,7 +286,7 @@ export default function Login() {
                   <input
                     type="email"
                     id="email"
-                    required
+                    required={authMethod === "email"}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
@@ -233,19 +301,19 @@ export default function Login() {
                   Condition
                 </label>
                 <select
-  id="condition"
-  required
-  value={condition}
-  onChange={(e) => setCondition(e.target.value)}
-  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
->
-  <option value="">Select Condition</option>
-  {conditions.map((cond) => (
-    <option key={cond.id} value={cond.id}>
-      {cond.conditionName} {/* Display conditionName */}
-    </option>
-  ))}
-</select>
+                  id="condition"
+                  required
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
+                >
+                  <option value="">Select Condition</option>
+                  {conditions.map((cond) => (
+                    <option key={cond.id} value={cond.id}>
+                      {cond.conditionName}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Medication */}
@@ -261,11 +329,13 @@ export default function Login() {
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
                 >
                   <option value="">Select Medication</option>
-                  {medications.map((med) => (
-                    <option key={med.id} value={med.id}>
-                      {med.name}
-                    </option>
-                  ))}
+                  {medications
+                    .filter((med) => med.conditionid === condition)
+                    .map((med) => (
+                      <option key={med.id} value={med.id}>
+                        {med.name}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -273,7 +343,7 @@ export default function Login() {
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Form Type</label>
                 <div className="flex items-center">
-                  <label className="mr-4">
+                  <label className="mr-4 flex items-center">
                     <input
                       type="radio"
                       name="formType"
@@ -284,8 +354,8 @@ export default function Login() {
                     />
                     Initial Script
                   </label>
-                  <label>
-                  <input
+                  <label className="flex items-center">
+                    <input
                       type="radio"
                       name="formType"
                       value="continuing"
@@ -367,7 +437,7 @@ export default function Login() {
                   <input
                     type="tel"
                     id="phone"
-                    required
+                    required={authMethod === "phone"}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
@@ -382,7 +452,7 @@ export default function Login() {
                   <input
                     type="email"
                     id="email"
-                    required
+                    required={authMethod === "email"}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
@@ -394,7 +464,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-600 transition-colors disabled:opacity-50"
+                className="w-full bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700 transition-colors disabled:opacity-50"
               >
                 {loading ? "Sending OTP..." : `Send OTP via ${authMethod === "email" ? "Email" : "SMS"}`}
               </button>

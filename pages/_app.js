@@ -1,13 +1,11 @@
 // pages/_app.js
-import { useState, useEffect } from 'react';
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { useEffect } from 'react';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import supabase from '../lib/supabaseClient'; // Adjust the path as necessary
 import '../styles/globals.css';
 import '../styles/custom.css'; // Import custom CSS file
 
 function MyApp({ Component, pageProps }) {
-  const [supabaseClient] = useState(() => createPagesBrowserClient());
-
   useEffect(() => {
     console.log("Rendering MyApp");
 
@@ -24,10 +22,10 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    <SessionContextProvider supabaseClient={supabaseClient} initialSession={pageProps.initialSession}>
+    <SessionContextProvider supabaseClient={supabase} initialSession={pageProps.initialSession}>
       <Component {...pageProps} />
     </SessionContextProvider>
   );
 }
 
-export default MyApp;  
+export default MyApp;
