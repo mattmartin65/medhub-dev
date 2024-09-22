@@ -221,257 +221,271 @@ export default function Login() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-t from-cyan-600 via-sky-300 to-primary px-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        {isNewUser ? (
-          <>
-            <h2 className="text-2xl font-bold mb-6 text-center">Welcome to MedHub</h2>
-            <h3 className="text-lg mb-6 text-center">Please complete the details below</h3>
+  // ... [rest of your imports and component code]
 
-            {/* Feedback Message */}
-            {message && (
-              <div
-                className={`mb-4 p-3 rounded ${
-                  message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
-                }`}
-              >
-                {message.text}
-              </div>
-            )}
+// ... [rest of your imports and component code]
 
-            {/* Toggle Authentication Method */}
-            <div className="flex justify-center mb-6">
-              <button
-                onClick={() => setAuthMethod("phone")}
-                className={`px-4 py-2 mr-2 rounded ${
-                  authMethod === "phone" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
-                } focus:outline-none`}
-              >
-                Phone
-              </button>
-              <button
-                onClick={() => setAuthMethod("email")}
-                className={`px-4 py-2 rounded ${
-                  authMethod === "email" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
-                } focus:outline-none`}
-              >
-                Email
-              </button>
+return (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-t from-cyan-600 via-sky-300 to-primary px-4">
+    <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+      {isNewUser ? (
+        <>
+          <h2 className="text-2xl font-bold mb-6 text-center">Welcome to MedHub</h2>
+          <h3 className="text-lg mb-6 text-center">Please complete the details below</h3>
+
+          {/* Feedback Message */}
+          {message && (
+            <div
+              className={`mb-4 p-3 rounded ${
+                message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+              }`}
+            >
+              {message.text}
             </div>
+          )}
 
-            {/* Onboarding Form */}
-            <form onSubmit={handleOnboarding} className="space-y-4">
-              {/* Phone or Email */}
-              {authMethod === "phone" ? (
-                <div className="mb-4">
-                  <label htmlFor="phone" className="block text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    required={authMethod === "phone"}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
-                    placeholder="0412 345 678"
-                  />
-                </div>
-              ) : (
-                <div className="mb-4">
-                  <label htmlFor="email" className="block text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    required={authMethod === "email"}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              )}
+          {/* Toggle Authentication Method */}
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={() => setAuthMethod("phone")}
+              className={`px-4 py-2 mr-2 rounded ${
+                authMethod === "phone" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
+              } focus:outline-none`}
+            >
+              Phone
+            </button>
+            <button
+              onClick={() => setAuthMethod("email")}
+              className={`px-4 py-2 rounded ${
+                authMethod === "email" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
+              } focus:outline-none`}
+            >
+              Email
+            </button>
+          </div>
 
-              {/* Condition */}
+          {/* Onboarding Form */}
+          <form onSubmit={handleOnboarding} className="space-y-4">
+            {/* Phone or Email */}
+            {authMethod === "phone" ? (
               <div className="mb-4">
-                <label htmlFor="condition" className="block text-gray-700 mb-2">
-                  Condition
-                </label>
-                <select
-                  id="condition"
-                  required
-                  value={condition}
-                  onChange={(e) => setCondition(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
-                >
-                  <option value="">Select Condition</option>
-                  {conditions.map((cond) => (
-                    <option key={cond.id} value={cond.id}>
-                      {cond.conditionName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Medication */}
-              <div className="mb-4">
-                <label htmlFor="medication" className="block text-gray-700 mb-2">
-                  Medication
-                </label>
-                <select
-                  id="medication"
-                  required
-                  value={medication}
-                  onChange={(e) => setMedication(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
-                >
-                  <option value="">Select Medication</option>
-                  {medications
-                    .filter((med) => med.conditionid === condition)
-                    .map((med) => (
-                      <option key={med.id} value={med.id}>
-                        {med.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              {/* Form Type */}
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Form Type</label>
-                <div className="flex items-center">
-                  <label className="mr-4 flex items-center">
-                    <input
-                      type="radio"
-                      name="formType"
-                      value="initial"
-                      checked={formType === "initial"}
-                      onChange={(e) => setFormType(e.target.value)}
-                      className="mr-2"
-                    />
-                    Initial Script
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="formType"
-                      value="continuing"
-                      checked={formType === "continuing"}
-                      onChange={(e) => setFormType(e.target.value)}
-                      className="mr-2"
-                    />
-                    Continuing
-                  </label>
-                </div>
-              </div>
-
-              {/* Date of Next Appointment */}
-              <div className="mb-4">
-                <label htmlFor="nextAppointment" className="block text-gray-700 mb-2">
-                  Date of Next Appointment
+                <label htmlFor="phone" className="block text-gray-700 mb-2">
+                  Phone Number
                 </label>
                 <input
-                  type="date"
-                  id="nextAppointment"
-                  required
-                  value={nextAppointment}
-                  onChange={(e) => setNextAppointment(e.target.value)}
+                  type="tel"
+                  id="phone"
+                  required={authMethod === "phone"}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
+                  placeholder="0412 345 678"
                 />
               </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700 transition-colors disabled:opacity-50"
-              >
-                {loading ? "Processing..." : "Complete Registration"}
-              </button>
-            </form>
-          </>
-        ) : (
-          <>
-            <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-
-            {/* Toggle Authentication Method */}
-            <div className="flex justify-center mb-6">
-              <button
-                onClick={() => setAuthMethod("phone")}
-                className={`px-4 py-2 mr-2 rounded ${
-                  authMethod === "phone" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
-                } focus:outline-none`}
-              >
-                Phone
-              </button>
-              <button
-                onClick={() => setAuthMethod("email")}
-                className={`px-4 py-2 rounded ${
-                  authMethod === "email" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
-                } focus:outline-none`}
-              >
-                Email
-              </button>
-            </div>
-
-            {/* Feedback Message */}
-            {message && (
-              <div
-                className={`mb-4 p-3 rounded ${
-                  message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
-                }`}
-              >
-                {message.text}
+            ) : (
+              <div className="mb-4">
+                <label htmlFor="email" className="block text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  required={authMethod === "email"}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
+                  placeholder="you@example.com"
+                />
               </div>
             )}
 
-            {/* Login Form */}
-            <form onSubmit={handleLogin}>
-              {authMethod === "phone" ? (
-                <div className="mb-4">
-                  <label htmlFor="phone" className="block text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    required={authMethod === "phone"}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
-                    placeholder="0412 345 678"
-                  />
-                </div>
-              ) : (
-                <div className="mb-4">
-                  <label htmlFor="email" className="block text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    required={authMethod === "email"}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700 transition-colors disabled:opacity-50"
+            {/* Condition Dropdown */}
+            <div className="mb-4 relative">
+              <label htmlFor="condition" className="block text-gray-700 mb-2">
+                Condition
+              </label>
+              <select
+                id="condition"
+                required
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-10 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-sky-600"
               >
-                {loading ? "Sending OTP..." : `Send OTP via ${authMethod === "email" ? "Email" : "SMS"}`}
-              </button>
-            </form>
-          </>
-        )}
-      </div>
+                <option value="">Select Condition</option>
+                {conditions.map((cond) => (
+                  <option key={cond.id} value={cond.id}>
+                    {cond.conditionName}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M5.516 7.548l4.484 4.484 4.484-4.484 1.06 1.06-5.544 5.544-5.544-5.544z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Medication Dropdown */}
+            <div className="mb-4 relative">
+              <label htmlFor="medication" className="block text-gray-700 mb-2">
+                Medication
+              </label>
+              <select
+                id="medication"
+                required
+                value={medication}
+                onChange={(e) => setMedication(e.target.value)}
+                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 pl-3 pr-10 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-sky-600"
+              >
+                <option value="">Select Medication</option>
+                {medications
+                  .filter((med) => med.conditionid === condition)
+                  .map((med) => (
+                    <option key={med.id} value={med.id}>
+                      {med.name}
+                    </option>
+                  ))}
+              </select>
+              <div className="pointer-events-none absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M5.516 7.548l4.484 4.484 4.484-4.484 1.06 1.06-5.544 5.544-5.544-5.544z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Form Type */}
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2">Form Type</label>
+              <div className="flex items-center">
+                <label className="mr-4 flex items-center">
+                  <input
+                    type="radio"
+                    name="formType"
+                    value="initial"
+                    checked={formType === "initial"}
+                    onChange={(e) => setFormType(e.target.value)}
+                    className="mr-2"
+                  />
+                  Initial Script
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="formType"
+                    value="continuing"
+                    checked={formType === "continuing"}
+                    onChange={(e) => setFormType(e.target.value)}
+                    className="mr-2"
+                  />
+                  Continuing
+                </label>
+              </div>
+            </div>
+
+            {/* Date of Next Appointment */}
+            <div className="mb-4">
+              <label htmlFor="nextAppointment" className="block text-gray-700 mb-2">
+                Date of Next Appointment
+              </label>
+              <input
+                type="date"
+                id="nextAppointment"
+                required
+                value={nextAppointment}
+                onChange={(e) => setNextAppointment(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? "Complete Registration..." : "Complete Registration"}
+            </button>
+          </form>
+        </>
+      ) : (
+        <>
+          <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+
+          {/* Toggle Authentication Method */}
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={() => setAuthMethod("phone")}
+              className={`px-4 py-2 mr-2 rounded ${
+                authMethod === "phone" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
+              } focus:outline-none`}
+            >
+              Phone
+            </button>
+            <button
+              onClick={() => setAuthMethod("email")}
+              className={`px-4 py-2 rounded ${
+                authMethod === "email" ? "bg-sky-600 text-white" : "bg-gray-200 text-gray-700"
+              } focus:outline-none`}
+            >
+              Email
+            </button>
+          </div>
+
+          {/* Feedback Message */}
+          {message && (
+            <div
+              className={`mb-4 p-3 rounded ${
+                message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin}>
+            {authMethod === "phone" ? (
+              <div className="mb-4">
+                <label htmlFor="phone" className="block text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  required={authMethod === "phone"}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
+                  placeholder="0412 345 678"
+                />
+              </div>
+            ) : (
+              <div className="mb-4">
+                <label htmlFor="email" className="block text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  required={authMethod === "email"}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-sky-300"
+                  placeholder="you@example.com"
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? "Sending OTP..." : `Send OTP via ${authMethod === "email" ? "Email" : "SMS"}`}
+            </button>
+          </form>
+        </>
+      )}
     </div>
-  );
+  </div>
+);
 }
