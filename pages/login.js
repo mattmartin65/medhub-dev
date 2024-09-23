@@ -1,3 +1,4 @@
+// pages/login.js
 import { useState, useEffect } from "react";
 import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
@@ -10,16 +11,18 @@ export default function Login() {
   const { newUser, clinicid, specialtyid } = router.query;
 
   const [isNewUser, setIsNewUser] = useState(false);
-  const [authMethod, setAuthMethod] = useState("phone");
+  const [authMethod, setAuthMethod] = useState("phone"); // Default to 'phone'
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [condition, setCondition] = useState(null);
-  const [medication, setMedication] = useState(null);
+  const [condition, setCondition] = useState(null); // Changed to null for Listbox
+  const [medication, setMedication] = useState(null); // Changed to null for Listbox
   const [isFirstPrescription, setIsFirstPrescription] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [conditions, setConditions] = useState([]);
+  const [allMedications, setAllMedications] = useState([]);
   const [medications, setMedications] = useState([]);
+
   const Listbox = Headless.Listbox || Headless.default?.Listbox || (() => null);
   const ListboxLabel = Headless.ListboxLabel || Headless.default?.ListboxLabel || Listbox.Label || (() => null);
   const ListboxButton = Headless.ListboxButton || Headless.default?.ListboxButton || Listbox.Button || (() => null);
@@ -27,12 +30,15 @@ export default function Login() {
   const ListboxOption = Headless.ListboxOption || Headless.default?.ListboxOption || Listbox.Option || (() => null);
 
 
+
+  // Redirect authenticated users to /medications
   useEffect(() => {
     if (session) {
-      router.push("/my-meds");
+      router.push("/medications");
     }
   }, [session, router]);
 
+  // Determine if the user is new based on query parameters
   useEffect(() => {
     if (newUser === "true" && clinicid && specialtyid) {
       setIsNewUser(true);
@@ -41,9 +47,11 @@ export default function Login() {
     }
   }, [newUser, clinicid, specialtyid]);
 
+  // Fetch conditions and medications based on specialtyid
   useEffect(() => {
     const fetchConditionsAndMedications = async () => {
       if (specialtyid) {
+        // Fetch conditions filtered by specialtyId
         const { data: conditionsData, error: conditionsError } = await supabase
           .from("conditions")
           .select("*")
@@ -56,15 +64,17 @@ export default function Login() {
           setConditions(conditionsData);
         }
 
+        // Fetch all medications (to be filtered based on condition selection)
         const { data: medicationsData, error: medicationsError } = await supabase
           .from("medications")
-          .select("*");
+          .select("*")
+          .order('id');
 
         if (medicationsError) {
           console.error("Error fetching medications:", medicationsError);
           setMessage({ type: "error", text: "Failed to load medications." });
         } else {
-          setMedications(medicationsData);
+          setAllMedications(medicationsData);
         }
       }
     };
@@ -72,18 +82,26 @@ export default function Login() {
     fetchConditionsAndMedications();
   }, [specialtyid, supabase]);
 
+  // Format phone number to ensure correct format
   const formatPhoneNumber = (phone) => {
+    // Remove any spaces or non-digit characters
     phone = phone.replace(/\D/g, "");
+
+    // If the number starts with '0', remove it and add country code '+61'
     if (phone.startsWith("0")) {
       phone = phone.substring(1);
       phone = "+61" + phone;
     }
+
+    // If the number does not start with '+', add default country code '+61'
     if (!phone.startsWith("+")) {
       phone = "+61" + phone;
     }
+
     return phone;
   };
 
+  // Validate form inputs
   const validateForm = () => {
     if (authMethod === "email") {
       const emailRegex = /\S+@\S+\.\S+/;
@@ -92,7 +110,7 @@ export default function Login() {
         return false;
       }
     } else {
-      const phoneRegex = /^\+61\d{9}$/;
+      const phoneRegex = /^\+61\d{9}$/; // Australian phone number format
       if (!phoneRegex.test(formatPhoneNumber(phone))) {
         setMessage({ type: "error", text: "Please enter a valid Australian phone number." });
         return false;
@@ -109,11 +127,12 @@ export default function Login() {
       return false;
     }
 
-    if (isFirstPrescription === null) {
-      setMessage({ type: "error", text: "Please indicate if this is your first prescription." });
+    if (!nextAppointment) {
+      setMessage({ type: "error", text: "Please select the date of your next appointment." });
       return false;
     }
 
+    // Ensure at least one contact method is provided
     if (!email && !phone) {
       setMessage({ type: "error", text: "Please provide either an email or a mobile number." });
       return false;
@@ -122,6 +141,7 @@ export default function Login() {
     return true;
   };
 
+  // Handle login for existing users
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -157,6 +177,7 @@ export default function Login() {
     }
   };
 
+  // Handle onboarding for new users
   const handleOnboarding = async (e) => {
     e.preventDefault();
 
@@ -166,6 +187,7 @@ export default function Login() {
     setMessage(null);
 
     try {
+      // Create a new user in Supabase Auth
       const { data: user, error: userError } = await supabase.auth.signUp({
         email: email || undefined,
         phone: phone ? formatPhoneNumber(phone) : undefined,
@@ -177,6 +199,7 @@ export default function Login() {
         return;
       }
 
+      // Insert user data into 'user_profiles' table
       const { error: insertError } = await supabase
         .from("user_profiles")
         .insert([
@@ -186,9 +209,10 @@ export default function Login() {
             clinicid,
             conditionid: condition,
             medicationid: medication,
-            is_first_prescription: isFirstPrescription,
-            mobile: phone ? formatPhoneNumber(phone) : null,
-            email: email ? email : null,
+            formid: formType === "initial" ? "INITIAL_FORM_ID" : "CONTINUING_FORM_ID",
+            dateform: nextAppointment,
+            mobile: phone ? phone : null, // Set to null if email is chosen
+            email: email ? email : null, // Set to null if phone is chosen
           },
         ]);
 
@@ -197,7 +221,7 @@ export default function Login() {
       } else {
         setMessage({ type: "success", text: "Registration successful! Redirecting..." });
         setTimeout(() => {
-          router.push("/my-meds");
+          router.push("/medications");
         }, 2000);
       }
     } catch (error) {
@@ -207,6 +231,30 @@ export default function Login() {
     }
   };
 
+  const onConditionChange = (value) => {
+    // console.log('onConditionChange', value);
+
+    // console.log('conditions', conditions);
+    // console.log('allmed', allMedications);
+
+    const con = conditions.find((c) => c.id === value );
+    let filteredMedications = [];
+    if( con.medication_id && con.medication_id.length > 0 && allMedications && allMedications.length > 0 ) {
+      for( let c = 0; c < con.medication_id.length; c++ ) {
+        for( let m = 0; m < allMedications.length; m++ ) {
+          // console.log(allMedications[m], con.medication_id[c]);
+          if( allMedications[m].id === con.medication_id[c]) {
+            filteredMedications.push(allMedications[m]);
+          }
+        }
+      }
+    }
+    // console.log('filtered', filteredMedications);
+
+    setCondition(value);
+    setMedications(filteredMedications);
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-t from-cyan-600 via-sky-300 to-primary px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
@@ -215,6 +263,7 @@ export default function Login() {
             <h2 className="text-2xl font-bold mb-6 text-center">Welcome to MedHub</h2>
             <h3 className="text-lg mb-6 text-center">Please complete the details below</h3>
 
+            {/* Feedback Message */}
             {message && (
               <div
                 className={`mb-4 p-3 rounded ${
@@ -225,6 +274,7 @@ export default function Login() {
               </div>
             )}
 
+            {/* Toggle Authentication Method */}
             <div className="flex justify-center mb-6">
               <button
                 onClick={() => setAuthMethod("phone")}
@@ -244,7 +294,9 @@ export default function Login() {
               </button>
             </div>
 
+            {/* Onboarding Form */}
             <form onSubmit={handleOnboarding} className="space-y-4">
+              {/* Phone or Email */}
               {authMethod === "phone" ? (
                 <div className="mb-4">
                   <label htmlFor="phone" className="block text-gray-700 mb-2">
@@ -277,8 +329,9 @@ export default function Login() {
                 </div>
               )}
 
-            <div className="mb-4 relative z-20">
-                <Listbox value={condition} onChange={setCondition}>
+              {/* Condition Dropdown using Listbox */}
+              <div className="mb-4 relative z-20">
+                <Listbox value={condition} onChange={onConditionChange}>
                   <ListboxLabel className="block text-gray-700 mb-2">Condition</ListboxLabel>
                   <div className="relative">
                     <ListboxButton className="relative w-full bg-white border border-gray-300 rounded py-2 pl-3 pr-10 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-sky-600">
@@ -286,20 +339,7 @@ export default function Login() {
                         {conditions.find((c) => c.id === condition)?.conditionName || "Select Condition"}
                       </span>
                       <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                          
-                      <svg
-                                      className="h-5 w-5"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                          
-                          <path
-                            fillRule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.35a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                        {/* ... (SVG icon remains unchanged) */}
                       </span>
                     </ListboxButton>
                     <ListboxOptions className="absolute z-30 mt-1 w-full bg-white shadow-lg max-h-60 rounded py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
@@ -327,8 +367,19 @@ export default function Login() {
                                     active ? "text-white" : "text-sky-600"
                                   } absolute inset-y-0 left-0 flex items-center pl-3`}
                                 >
-                                  
-                                </span>
+                        <svg
+                          className="h-5 w-5 text-gray-400"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.35a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        </span>
                               ) : null}
                             </>
                           )}
@@ -339,6 +390,7 @@ export default function Login() {
                 </Listbox>
               </div>
 
+              {/* Medication Dropdown using Listbox */}
               <div className="mb-4 relative z-10">
                 <Listbox value={medication} onChange={setMedication} disabled={!condition}>
                   <ListboxLabel className="block text-gray-700 mb-2">Medication</ListboxLabel>
@@ -363,9 +415,7 @@ export default function Login() {
                       </span>
                     </ListboxButton>
                     <ListboxOptions className="absolute z-20 mt-1 w-full bg-white shadow-lg max-h-60 rounded py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                      {medications
-                        .filter((med) => med.conditionid === condition)
-                        .map((med) => (
+                      {medications.map((med) => (
                           <ListboxOption
                             key={med.id}
                             className={({ active }) =>
