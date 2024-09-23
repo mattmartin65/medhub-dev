@@ -1,0 +1,933 @@
+Medhub-dev project file structure:
+
+./.DS_Store
+./.env.local
+./.git
+./.gitignore
+./.next
+./README.md
+./app
+./app/favicon.ico
+./app/globals.css
+./app/layout.js
+./app/page.js
+./components
+./components/Card.js
+./components/ClientLayout.js
+./components/Header.js
+./components/ListCards.js
+./components/MaxWifthContainer.js
+./components/Modal.js
+./components/NavBar.js
+./components/PageTitle.js
+./data
+./data/clinic.js
+./data/medications.js
+./data/reminders.js
+./jsconfig.json
+./lib
+./lib/supabaseAuth.js
+./lib/supabaseClient.js
+./medhub-documentation.md
+./next.config.mjs
+./node_modules
+./package-lock.json
+./package.json
+./pages
+./pages/.DS_Store
+./pages/_app.js
+./pages/_document.js
+./pages/login.js
+./pages/my-clinic.js
+./pages/my-meds.js
+./pages/remind-me.js
+./pages/signup.js
+./postcss.config.js
+./postcss.config.mjs
+./public
+./public/.DS_Store
+./public/icons
+./public/icons/icon-192x192.png
+./public/icons/icon-512x512.png
+./public/manifest.json
+./public/next.svg
+./public/sw.js
+./public/vercel.svg
+./styles
+./styles/custom.css
+./styles/globals.css
+./tailwind.config.js
+
+
+Imports from the key files are as follows:
+/Users/mattmartin/medhub-dev/pages/_app.js - import { useEffect } from 'react';
+/Users/mattmartin/medhub-dev/pages/_app.js - import { SessionContextProvider } from '@supabase/auth-helpers-react';
+/Users/mattmartin/medhub-dev/pages/_app.js - import supabase from '../lib/supabaseClient'; // Adjust the path as necessary
+/Users/mattmartin/medhub-dev/pages/_app.js - import '../styles/globals.css';
+/Users/mattmartin/medhub-dev/pages/_app.js - import '../styles/custom.css'; // Import custom CSS file
+/Users/mattmartin/medhub-dev/pages/signup.js - import { useState } from "react";
+/Users/mattmartin/medhub-dev/pages/signup.js - import { useSupabaseClient } from "@supabase/auth-helpers-react";
+/Users/mattmartin/medhub-dev/pages/my-meds.js - import { useEffect, useState } from 'react';
+/Users/mattmartin/medhub-dev/pages/my-meds.js - import supabase from '../lib/supabaseClient';
+/Users/mattmartin/medhub-dev/pages/my-meds.js - import ClientLayout from '../components/ClientLayout';
+/Users/mattmartin/medhub-dev/pages/my-meds.js - import Card from '../components/Card';
+/Users/mattmartin/medhub-dev/pages/login.js - import { useState, useEffect, Fragment } from "react";
+/Users/mattmartin/medhub-dev/pages/login.js - import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
+/Users/mattmartin/medhub-dev/pages/login.js - import { useRouter } from "next/router";
+/Users/mattmartin/medhub-dev/pages/login.js - import { Listbox } from "@headlessui/react";
+/Users/mattmartin/medhub-dev/pages/_document.js - import Document, { Html, Head, Main, NextScript } from 'next/document';
+/Users/mattmartin/medhub-dev/pages/my-clinic.js - import ClientLayout from '../components/ClientLayout';
+/Users/mattmartin/medhub-dev/pages/remind-me.js - import ClientLayout from '../components/ClientLayout';
+/Users/mattmartin/medhub-dev/pages/remind-me.js - import ListCards from '../components/ListCards';
+/Users/mattmartin/medhub-dev/pages/remind-me.js - import PageTitle from '../components/PageTitle';
+
+
+
+
+/Users/mattmartin/medhub-dev/components/NavBar.js - import Link from "next/link";
+/Users/mattmartin/medhub-dev/components/NavBar.js - import { usePathname } from "next/navigation";
+/Users/mattmartin/medhub-dev/components/NavBar.js - import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
+/Users/mattmartin/medhub-dev/components/NavBar.js - import { FaPills, FaBell, FaClinicMedical, FaSignOutAlt } from "react-icons/fa";
+/Users/mattmartin/medhub-dev/components/ListCards.js - import { useState, useEffect } from 'react';
+/Users/mattmartin/medhub-dev/components/ListCards.js - import supabase from '../lib/supabaseClient';
+/Users/mattmartin/medhub-dev/components/ListCards.js - import Modal from './Modal';
+/Users/mattmartin/medhub-dev/components/Header.js - import { useSession } from '@supabase/auth-helpers-react';
+/Users/mattmartin/medhub-dev/components/Header.js - import { FaClinicMedical } from 'react-icons/fa';
+/Users/mattmartin/medhub-dev/components/Header.js - import { useEffect } from 'react';
+/Users/mattmartin/medhub-dev/components/Card.js - import { useState, useEffect } from 'react';
+/Users/mattmartin/medhub-dev/components/Card.js - import Modal from './Modal';
+/Users/mattmartin/medhub-dev/components/Modal.js - import React, { useEffect, useRef } from 'react';
+/Users/mattmartin/medhub-dev/components/ClientLayout.js - import { useEffect, useState } from 'react';
+/Users/mattmartin/medhub-dev/components/ClientLayout.js - import supabase from '../lib/supabaseClient';
+/Users/mattmartin/medhub-dev/components/ClientLayout.js - import Header from "./Header";
+/Users/mattmartin/medhub-dev/components/ClientLayout.js - import NavBar from "./NavBar";  // Import the NavBar component instead of BottomNav
+
+
+
+
+/Users/mattmartin/medhub-dev/app/layout.js - import { Inter } from "next/font/google";
+/Users/mattmartin/medhub-dev/app/layout.js - import "./globals.css";
+/Users/mattmartin/medhub-dev/app/layout.js - import ClientLayout from "../components/ClientLayout"; // Import ClientLayout
+/Users/mattmartin/medhub-dev/app/page.js - import Image from "next/image";
+
+
+/Users/mattmartin/medhub-dev/data/medications.js - import { useEffect, useState } from 'react';
+/Users/mattmartin/medhub-dev/data/medications.js - import supabase from '../lib/supabaseClient';
+/Users/mattmartin/medhub-dev/data/medications.js - import ClientLayout from '../components/ClientLayout';
+/Users/mattmartin/medhub-dev/data/medications.js - import Card from '../components/Card';
+
+
+/Users/mattmartin/medhub-dev/lib/supabaseAuth.js - import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
+/Users/mattmartin/medhub-dev/lib/supabaseAuth.js - import { SessionContextProvider } from "@supabase/auth-helpers-react";
+/Users/mattmartin/medhub-dev/lib/supabaseAuth.js - import { useState } from "react";
+/Users/mattmartin/medhub-dev/lib/supabaseClient.js - import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
+
+
+
+Supabase Tables and fields
+
+[
+  {
+    "table_name": "clinic",
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "nextval('clinic_id_seq'::regclass)"
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "clinicName",
+    "data_type": "character varying",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "address",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "phone",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "email",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "hours",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "logo",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "postcode",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "logo-full",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "headerUrl",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "created",
+    "data_type": "timestamp without time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "icon",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "medflowid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic",
+    "column_name": "clinicid",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "medflowid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "clinicid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "clinicname",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "userid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "filename",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "filetype",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "fileurl",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "clinic-content",
+    "column_name": "video",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "conditions",
+    "column_name": "medflowConditionId",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "conditions",
+    "column_name": "conditionName",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "conditions",
+    "column_name": "conditionId",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "conditions",
+    "column_name": "specialtyId",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "conditions",
+    "column_name": "medflowspecialtyid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "medflowid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "conditionid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "description",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "url",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "image",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "type",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "feed",
+    "column_name": "video",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "medflowid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "formname",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "formcode",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "duration",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "nextformid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "nextformcode",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "nextformname",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "conditionid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "conditionname",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "medicationid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "forms",
+    "column_name": "uuid",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "manufacturer",
+    "column_name": "medflowId",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "manufacturer",
+    "column_name": "manufacturerName",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "manufacturer",
+    "column_name": "address",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "manufacturer",
+    "column_name": "companylogo",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "id",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "generic",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "dosage",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "description",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "instructions",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "manufacturerid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "logo",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "package-image",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "imageUrl",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "headerUrl",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "modallogo",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "modaltitle",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "modaldescription",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "modalvideo",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "modalimage",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "modallinkcmi",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "modallinkcompany",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "medflowId",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "medhubId",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "programid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "medications",
+    "column_name": "formid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "medflowid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "contentname",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "content",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "image",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "medId",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "specialty",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "order",
+    "data_type": "bigint",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "patientprogam",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "program-content",
+    "column_name": "dosagesection",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "id",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "description",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "imageurl",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "modallogo",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "modaltitle",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "modaldescription",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "modalvideo",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "modalimage",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "modallinkcmi",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "modallinkcompany",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "medflowid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "programs",
+    "column_name": "medicationid",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "reminder-list",
+    "column_name": "name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "reminder-list",
+    "column_name": "description",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "reminder-list",
+    "column_name": "truncated",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "reminder-list",
+    "column_name": "additional-information",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "reminder-list",
+    "column_name": "image",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "reminder-list",
+    "column_name": "frequency-days",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  }
+]
+
+
+
