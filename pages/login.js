@@ -20,6 +20,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [conditions, setConditions] = useState([]);
+  const [allMedications, setAllMedications] = useState([]);
   const [medications, setMedications] = useState([]);
 
   const Listbox = Headless.Listbox || Headless.default?.Listbox || (() => null);
@@ -66,13 +67,14 @@ export default function Login() {
         // Fetch all medications (to be filtered based on condition selection)
         const { data: medicationsData, error: medicationsError } = await supabase
           .from("medications")
-          .select("*");
+          .select("*")
+          .order('id');
 
         if (medicationsError) {
           console.error("Error fetching medications:", medicationsError);
           setMessage({ type: "error", text: "Failed to load medications." });
         } else {
-          setMedications(medicationsData);
+          setAllMedications(medicationsData);
         }
       }
     };
@@ -229,6 +231,30 @@ export default function Login() {
     }
   };
 
+  const onConditionChange = (value) => {
+    // console.log('onConditionChange', value);
+
+    // console.log('conditions', conditions);
+    // console.log('allmed', allMedications);
+
+    const con = conditions.find((c) => c.id === value );
+    let filteredMedications = [];
+    if( con.medication_id && con.medication_id.length > 0 && allMedications && allMedications.length > 0 ) {
+      for( let c = 0; c < con.medication_id.length; c++ ) {
+        for( let m = 0; m < allMedications.length; m++ ) {
+          // console.log(allMedications[m], con.medication_id[c]);
+          if( allMedications[m].id === con.medication_id[c]) {
+            filteredMedications.push(allMedications[m]);
+          }
+        }
+      }
+    }
+    // console.log('filtered', filteredMedications);
+
+    setCondition(value);
+    setMedications(filteredMedications);
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-t from-cyan-600 via-sky-300 to-primary px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
@@ -305,7 +331,7 @@ export default function Login() {
 
               {/* Condition Dropdown using Listbox */}
               <div className="mb-4 relative z-20">
-                <Listbox value={condition} onChange={setCondition}>
+                <Listbox value={condition} onChange={onConditionChange}>
                   <ListboxLabel className="block text-gray-700 mb-2">Condition</ListboxLabel>
                   <div className="relative">
                     <ListboxButton className="relative w-full bg-white border border-gray-300 rounded py-2 pl-3 pr-10 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-sky-600">
@@ -389,9 +415,7 @@ export default function Login() {
                       </span>
                     </ListboxButton>
                     <ListboxOptions className="absolute z-20 mt-1 w-full bg-white shadow-lg max-h-60 rounded py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                      {medications
-                        .filter((med) => med.conditionid === condition)
-                        .map((med) => (
+                      {medications.map((med) => (
                           <ListboxOption
                             key={med.id}
                             className={({ active }) =>
